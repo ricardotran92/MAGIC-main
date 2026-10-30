@@ -1,7 +1,18 @@
-diffusers==0.9.0
-accelerate>=0.16.0
-torchvision
-transformers>=4.21.0
+# diffusers is vendored in ./diffusers (0.31.0.dev0, with the MAGIC pipeline) — do not pip install it.
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.4.1
+torchvision==0.19.1
+transformers==4.44.2
+huggingface_hub==0.25.2
+accelerate==0.34.2
+peft==0.13.2
+safetensors
+numpy<2
 ftfy
 tensorboard
 Jinja2
+opencv-python-headless
+scipy
+lpips
+psutil
+scikit-image

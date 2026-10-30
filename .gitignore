@@ -1,0 +1,30 @@
+.venv
+__pycache__
+.pytest_cache
+mvtec_ad
+models
+formula
+docs
+
+# Generated artifacts: keep on the server, fetch on demand (never push)
+*.log
+
+# Large binary formats (GitHub rejects files >= 100 MB)
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.tar
+*.tar.gz
+*.tar.xz
+*.zip
+
+# Python caches
+*.pyc
+
+# Run outputs stay on the server; only small perf reports are committed
+model/
+outputs/
+runs/*
+!runs/perf/
