@@ -3,7 +3,8 @@
 source /opt/miniconda3/etc/profile.d/conda.sh
 conda activate "$HOME/envs/magic"
 
-export GPU="${GPU:-0}"
+# ~/.bashrc on kindred exports GPU=2 for other projects; MAGIC runs on GPU 0 unless MAGIC_GPU says otherwise.
+export GPU="${MAGIC_GPU:-0}"
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 export CUDA_VISIBLE_DEVICES="$GPU"
 export SHARED="${SHARED:-$HOME/shared}"
