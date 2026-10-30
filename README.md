@@ -1,10 +1,4 @@
-# [CVPR 2026 Findings] MAGIC: Few-Shot Mask-Guided Anomaly Inpainting with Prompt Perturbation, Spatially Adaptive Guidance, and Context Awareness
 
-[![arXiv](https://img.shields.io/badge/arXiv-2507.02314-b31b1b.svg)](https://arxiv.org/abs/2507.02314)
-
-## Abstract
-
-Few-shot anomaly generation is a key challenge in industrial quality control. Although diffusion models are promising, existing methods struggle: global prompt-guided approaches corrupt normal regions, and existing inpainting-based methods often lack the in-distribution diversity essential for robust downstream models. We propose MAGIC, a fine-tuned inpainting framework that generates high-fidelity anomalies that strictly adhere to the mask while maximizing this diversity. MAGIC introduces three complementary components: (i) Gaussian prompt perturbation, which prevents model overfitting in the few-shot setting by learning and sampling from a smooth manifold of realistic anomalies, (ii) spatially adaptive guidance that applies distinct guidance strengths to the anomaly and background regions, and (iii) context-aware mask alignment to relocate masks for plausible placement within the host object. Under consistent identical evaluation protocol, MAGIC outperforms state-of-the-art methods on diverse anomaly datasets in downstream tasks.
 
 <p align="center">
   <img src="dataset/main_framework.png" alt="MAGIC Framework Overview" width="800"/>
@@ -182,16 +176,6 @@ See the `licenses/` folder:
 - `LICENSE_U2NET.txt` — U-2-Net (Apache 2.0)
 
 
-## 📄 License
-
-This code is licensed for **academic research and non-commercial use only**.
-
-- You may use, modify, and distribute this code **for academic or educational purposes**.
-- **Commercial use is strictly prohibited** without explicit written permission from the authors.
-- If you use this code in your research, please cite our paper.
-- This work is licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License. See https://creativecommons.org/licenses/by-nc/4.0/ for details.
-
-© Jae Hyuck Choi, 2025
 
 
 
