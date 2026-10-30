@@ -2,7 +2,7 @@ import argparse, os, random, re, json, types
 import torch, numpy as np, cv2
 from PIL import Image
 from magic_ddim import DDIMScheduler
-from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_inpaint_dynamic_anomaly_strength_guidance_scheduler_up import \
+from diffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_inpaint_magic import \
      StableDiffusionInpaintPipeline_dynamic
 import glob
 from diffusers.configuration_utils import FrozenDict 
@@ -36,6 +36,14 @@ def parse_args():
     parser.add_argument("--model_ckpt_root", required=True)
     parser.add_argument("--ddim_scheduler_root", required=True)
     parser.add_argument("--categories", nargs='+', default=None)
+    parser.add_argument("--defect_classes", nargs='+', default=None,
+                        help="Only run these defect classes (default: all with a checkpoint).")
+    parser.add_argument("--base_model", default=os.environ.get("SD2", "stabilityai/stable-diffusion-2-inpainting"),
+                        help="SD2 inpainting weights used when a checkpoint holds only LoRA weights. Default: $SD2")
+    parser.add_argument("--num_inference_steps", type=int, default=50)
+    parser.add_argument("--max_masks", type=int, default=None,
+                        help="Use only the first N masks per defect (smoke tests).")
+    parser.add_argument("--seed", type=int, default=None)
     parser.add_argument("--blur_factor", type=int, default=0)
     parser.add_argument("--text_noise_scale", type=float, default=0.0)
     parser.add_argument("--output_name", default="./")
@@ -190,6 +198,7 @@ def inpaint(pipe, image, prompt, mask=None, n_samples=4, device="cuda",
         gsi_exp_k=gsi_exp_k,
         gsi_sigmoid_k=gsi_sigmoid_k,
         gsi_sample_per_step=gsi_sample_per_step,
+        num_inference_steps=args.num_inference_steps,
     ).images
 
 
@@ -207,6 +216,7 @@ def load_object_mask(category, normal_img_path, normal_masks_dir):
 
     cand_dirs = [
         os.path.join(cat_dir, "train", "masks"),
+        os.path.join(cat_dir, "train", "good"),
         os.path.join(cat_dir, "masks"),
         cat_dir,
     ]
@@ -367,6 +377,10 @@ def CAMA(
 
 
 def main():
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
     with open(args.defect_json, "r", encoding="utf-8") as f:
         defect_data = json.load(f)
     with open(args.match_json, "r", encoding="utf-8") as f:
@@ -404,7 +418,8 @@ def main():
 
         defect_classes = [d for d in os.listdir(gt_path)
                           if os.path.isdir(os.path.join(gt_path, d))
-                          and d != "good"]
+                          and d != "good"
+                          and (args.defect_classes is None or d in args.defect_classes)]
         for defect_class in defect_classes:
             if defect_class not in defect_data.get(category, {}):
                 print(f"[WARN] {defect_class} not in defect_json → skip")
@@ -422,8 +437,13 @@ def main():
                 print(f"[WARN] checkpoint absent: {ckpt_root} → skip")
                 continue
 
-            pipe = StableDiffusionInpaintPipeline_dynamic.from_pretrained(
-                ckpt_root, torch_dtype=torch.float16)
+            if os.path.exists(os.path.join(ckpt_root, "pytorch_lora_weights.safetensors")):
+                pipe = StableDiffusionInpaintPipeline_dynamic.from_pretrained(
+                    args.base_model, torch_dtype=torch.float16)
+                pipe.load_lora_weights(ckpt_root)
+            else:
+                pipe = StableDiffusionInpaintPipeline_dynamic.from_pretrained(
+                    ckpt_root, torch_dtype=torch.float16)
             pipe.scheduler = DDIMScheduler.from_pretrained(args.ddim_scheduler_root)
 
             sched = pipe.scheduler
@@ -451,6 +471,8 @@ def main():
                 (os.path.join(mask_root, f) for f in os.listdir(mask_root)
                  if f.lower().endswith((".png", ".jpg", ".jpeg"))),
                 key=lambda x: extract_number_from_filename(os.path.basename(x)))
+            if args.max_masks is not None:
+                mask_imgs = mask_imgs[:args.max_masks]
 
             suffix = (f"noise_{args.text_noise_scale}_"
                       f"guidance_scale_{args.gsi_min}_{args.gsi_max}_"

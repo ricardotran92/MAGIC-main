@@ -1,5 +1,6 @@
 import argparse
 import itertools
+import logging
 import math
 import os
 import random
@@ -30,7 +31,9 @@ from diffusers import (
     UNet2DConditionModel,
 )
 from diffusers.optimization import get_scheduler
-from diffusers.utils import check_min_version
+from diffusers.utils import check_min_version, convert_state_dict_to_diffusers
+from peft import LoraConfig
+from peft.utils import get_peft_model_state_dict
 
 check_min_version("0.13.0.dev0")
 
@@ -322,6 +325,15 @@ def parse_args():
             "Whether training should be resumed from a previous checkpoint. Use a path saved by"
             ' `--checkpointing_steps`, or `"latest"` to automatically select the last available checkpoint.'
         ),
+    )
+    parser.add_argument("--use_lora", action="store_true", help="Train LoRA adapters on the UNet instead of full fine-tuning.")
+    parser.add_argument("--lora_rank", type=int, default=16, help="LoRA rank.")
+    parser.add_argument("--lora_alpha", type=int, default=None, help="LoRA alpha (default: equal to rank).")
+    parser.add_argument(
+        "--lora_target_modules",
+        type=str,
+        default="to_q,to_k,to_v,to_out.0",
+        help="Comma-separated UNet module names to wrap with LoRA.",
     )
 
     args = parser.parse_args()
@@ -708,6 +720,7 @@ class PromptDataset(Dataset):
 
 def main():
     args = parse_args()
+    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", level=logging.INFO)
     logging_dir = Path(args.output_dir, args.logging_dir)
 
     project_config = ProjectConfiguration(
@@ -787,6 +800,19 @@ def main():
     if not args.train_text_encoder:
         text_encoder.requires_grad_(False)
 
+    if args.use_lora:
+        unet.requires_grad_(False)
+        unet.add_adapter(
+            LoraConfig(
+                r=args.lora_rank,
+                lora_alpha=args.lora_alpha or args.lora_rank,
+                init_lora_weights="gaussian",
+                target_modules=args.lora_target_modules.split(","),
+            )
+        )
+        n_trainable = sum(p.numel() for p in unet.parameters() if p.requires_grad)
+        logger.info(f"  LoRA rank {args.lora_rank}: {n_trainable / 1e6:.2f}M trainable UNet parameters")
+
     if args.gradient_checkpointing:
         unet.enable_gradient_checkpointing()
         if args.train_text_encoder:
@@ -806,8 +832,9 @@ def main():
     else:
         optimizer_class = torch.optim.AdamW
 
+    unet_params = [p for p in unet.parameters() if p.requires_grad]
     params_to_optimize = (
-        itertools.chain(unet.parameters(), text_encoder.parameters()) if args.train_text_encoder else unet.parameters()
+        itertools.chain(unet_params, text_encoder.parameters()) if args.train_text_encoder else unet_params
     )
     optimizer = optimizer_class(
         params_to_optimize,
@@ -1046,7 +1073,12 @@ def main():
 
         accelerator.wait_for_everyone()
 
-    if accelerator.is_main_process:
+    if accelerator.is_main_process and args.use_lora:
+        unet_lora_layers = convert_state_dict_to_diffusers(get_peft_model_state_dict(accelerator.unwrap_model(unet)))
+        StableDiffusionInpaintPipeline.save_lora_weights(
+            save_directory=args.output_dir, unet_lora_layers=unet_lora_layers, safe_serialization=True
+        )
+    elif accelerator.is_main_process:
         pipeline = StableDiffusionPipeline.from_pretrained(
             args.pretrained_model_name_or_path,
             unet=accelerator.unwrap_model(unet),
@@ -1054,13 +1086,13 @@ def main():
         )
         pipeline.save_pretrained(args.output_dir)
 
-        if args.push_to_hub:
-            upload_folder(
-                repo_id=repo_id,
-                folder_path=args.output_dir,
-                commit_message="End of training",
-                ignore_patterns=["step_*", "epoch_*"],
-            )
+    if accelerator.is_main_process and args.push_to_hub:
+        upload_folder(
+            repo_id=repo_id,
+            folder_path=args.output_dir,
+            commit_message="End of training",
+            ignore_patterns=["step_*", "epoch_*"],
+        )
 
     accelerator.end_training()
 
