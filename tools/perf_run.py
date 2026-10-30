@@ -315,7 +315,7 @@ def workload_after(script, argv, before, output_text, wall):
                     train_batch_size=batch, gradient_accumulation_steps=accum,
                     few_shot_examples=examples or None,
                     mode="lora" if has_flag(argv, "--use_lora") else "full",
-                    lora_rank=arg_value(argv, "--lora_rank", None, int) if has_flag(argv, "--use_lora") else None,
+                    lora_rank=arg_value(argv, "--lora_rank", 16, int) if has_flag(argv, "--use_lora") else None,
                     checkpoint_gib=dir_size_gib(output_dir_of(script, argv)))
     elif script == "inference.py":
         after = count_files(output_dir_of(script, argv), "image/*.jpg")
