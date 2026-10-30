@@ -16,3 +16,5 @@ scipy
 lpips
 psutil
 scikit-image
+rembg==2.0.59
+onnxruntime==1.19.2
