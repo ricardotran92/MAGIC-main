@@ -87,18 +87,25 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--mvtec_path", help="Path to MVTec dataset")
     parser.add_argument("--gen_path", help="Path to generated dataset")
+    parser.add_argument("--sample_name", nargs='+', default=None, help="Categories to score (default: all present)")
+    parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
+    random.seed(args.seed)
 
-    sample_names = [
+    sample_names = args.sample_name or [
         'bottle', 'cable', 'capsule', 'carpet', 'grid', 'hazelnut', 'leather',
         'metal_nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper'
     ]
 
     for sample_name in sample_names:
+        if not os.path.isdir('%s/%s' % (args.gen_path, sample_name)):
+            continue
         dis = 0
         cnt = 0
         for anomaly_name in os.listdir('%s/%s' % (args.gen_path, sample_name)):
-            dis += ic_lpips(args.mvtec_path, args.gen_path, sample_name, anomaly_name)
+            score = ic_lpips(args.mvtec_path, args.gen_path, sample_name, anomaly_name)
+            print(f"IC-LPIPS {sample_name}/{anomaly_name}: {float(score):.4f}")
+            dis += score
             cnt += 1
         with open(f"{args.gen_path}_results.csv", "a") as csvfile:
             writer = csv.writer(csvfile)

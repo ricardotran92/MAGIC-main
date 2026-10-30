@@ -328,8 +328,10 @@ def workload_after(script, argv, before, output_text, wall):
                     guidance_scale_outside=arg_value(argv, "--guidance_scale_outside", None))
     elif script == "cal_kid.py":
         n = count_files(output_dir_of(script, argv), "image/*.jpg")
+        rows = re.findall(r"KID score for (\S+): ([-\d.eE]+)", output_text)
         info.update(unit="generated_image_scored", done=n, images=n,
-                    metrics={"kid_x1000_overall": last_float(r"Overall mean KID score: ([-\d.eE]+)", output_text)})
+                    metrics={"kid_x1000_overall": last_float(r"Overall mean KID score: ([-\d.eE]+)", output_text),
+                             **{f"kid_x1000 {name}": float(v) for name, v in rows}})
     elif script == "cal_ic_lpips.py":
         n = count_files(output_dir_of(script, argv), "image/*.jpg")
         rows = re.findall(r"IC-LPIPS (\S+): ([-\d.eE]+)", output_text)
