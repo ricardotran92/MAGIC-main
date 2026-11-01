@@ -1,0 +1,268 @@
+{
+  "tag": "lora_screw_scratch_neck",
+  "command": "python run_train.py --base_dir /home/ricardo/shared/datasets/mvtec_ad --category screw --defect_class scratch_neck --output_name magic --max_train_steps 5000 --seed 0 --use_lora --lora_rank 16 --mixed_precision fp16",
+  "cwd": "/home/ricardo/projects/MAGIC-main",
+  "cuda_visible_devices": "0",
+  "git": {
+    "commit": "a1e5c85",
+    "branch": "main",
+    "dirty": true
+  },
+  "system": {
+    "hostname": "kindred",
+    "os": "Linux-6.5.0-44-generic-x86_64-with-glibc2.35",
+    "python": "3.10.22",
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8358P CPU @ 2.60GHz",
+    "cpu_logical": 128,
+    "cpu_physical": 64,
+    "ram_total_gib": 251.47,
+    "swap_total_gib": 1.91,
+    "gpus": [
+      {
+        "index": 0,
+        "name": "NVIDIA A40",
+        "memory.total": 46068.0,
+        "power.limit": 300.0,
+        "driver_version": "550.144.03",
+        "pci.bus_id": "00000000:1B:00.0"
+      },
+      {
+        "index": 1,
+        "name": "NVIDIA A40",
+        "memory.total": 46068.0,
+        "power.limit": 300.0,
+        "driver_version": "550.144.03",
+        "pci.bus_id": "00000000:50:00.0"
+      },
+      {
+        "index": 2,
+        "name": "NVIDIA A40",
+        "memory.total": 46068.0,
+        "power.limit": 300.0,
+        "driver_version": "550.144.03",
+        "pci.bus_id": "00000000:9C:00.0"
+      },
+      {
+        "index": 3,
+        "name": "NVIDIA A40",
+        "memory.total": 46068.0,
+        "power.limit": 300.0,
+        "driver_version": "550.144.03",
+        "pci.bus_id": "00000000:9D:00.0"
+      },
+      {
+        "index": 4,
+        "name": "NVIDIA A40",
+        "memory.total": 46068.0,
+        "power.limit": 300.0,
+        "driver_version": "550.144.03",
+        "pci.bus_id": "00000000:CF:00.0"
+      }
+    ],
+    "packages": {
+      "torch": "2.4.1+cu121",
+      "torchvision": "0.19.1+cu121",
+      "transformers": "4.44.2",
+      "peft": "0.13.2",
+      "accelerate": "0.34.2",
+      "huggingface_hub": "0.25.2",
+      "safetensors": "0.8.0",
+      "lpips": "0.1.4",
+      "scipy": "1.15.3",
+      "numpy": "1.26.4",
+      "diffusers": "0.31.0.dev0 (vendored)",
+      "torch_cuda": "12.1"
+    }
+  },
+  "before": {
+    "time": "2026-10-30T23:04:18",
+    "sys_cpu_percent": 7.0,
+    "load_avg_1_5_15": [
+      6.87,
+      7.03,
+      7.04
+    ],
+    "sys_ram_used_gib": 210.48,
+    "sys_ram_available_gib": 40.98,
+    "selected_gpu": {
+      "index": 0,
+      "name": "NVIDIA A40",
+      "memory.total": 46068.0,
+      "memory.used": 14.0,
+      "utilization.gpu": 0.0,
+      "temperature.gpu": 48.0,
+      "power.draw": 59.85,
+      "power.limit": 300.0,
+      "driver_version": "550.144.03",
+      "pci.bus_id": "00000000:1B:00.0"
+    },
+    "selected_gpu_other_processes": 0,
+    "selected_gpu_other_processes_mib": 0,
+    "all_gpus": [
+      {
+        "index": 0,
+        "memory.used": 14.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 1,
+        "memory.used": 948.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 2,
+        "memory.used": 2078.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 3,
+        "memory.used": 41754.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 4,
+        "memory.used": 41754.0,
+        "utilization.gpu": 0.0
+      }
+    ]
+  },
+  "start_time": "2026-10-30T23:04:19",
+  "end_time": "2026-10-30T23:56:10",
+  "status": "completed",
+  "exit_code": 0,
+  "wall_seconds": 3110.83,
+  "wall_hms": "0:51:51",
+  "script": "run_train.py",
+  "script_args": [
+    "--base_dir",
+    "/home/ricardo/shared/datasets/mvtec_ad",
+    "--category",
+    "screw",
+    "--defect_class",
+    "scratch_neck",
+    "--output_name",
+    "magic",
+    "--max_train_steps",
+    "5000",
+    "--seed",
+    "0",
+    "--use_lora",
+    "--lora_rank",
+    "16",
+    "--mixed_precision",
+    "fp16"
+  ],
+  "during": {
+    "samples": 26,
+    "interval_s": 120.0,
+    "proc_cpu": {
+      "mean": 96.15,
+      "max": 100.0
+    },
+    "proc_rss": {
+      "mean": 2.23,
+      "max": 2.24
+    },
+    "proc_gpu_mem": {
+      "mean": 10638.0,
+      "max": 10638.0
+    },
+    "sys_cpu": {
+      "mean": 5.3,
+      "max": 7.5
+    },
+    "sys_ram": {
+      "mean": 212.32,
+      "max": 213.23
+    },
+    "gpu_util": {
+      "mean": 80.77,
+      "max": 100.0
+    },
+    "gpu_mem": {
+      "mean": 10660.0,
+      "max": 10660.0
+    },
+    "gpu_power": {
+      "mean": 233.23,
+      "max": 260.13
+    },
+    "gpu_temp": {
+      "mean": 57.69,
+      "max": 60.0
+    }
+  },
+  "workload": {
+    "unit": "optimizer_step",
+    "done": 5000,
+    "images": 20000,
+    "jobs": 1,
+    "max_train_steps": 5000,
+    "resumed_steps": 0,
+    "train_batch_size": 4,
+    "gradient_accumulation_steps": 1,
+    "few_shot_examples": [
+      8
+    ],
+    "mode": "lora",
+    "lora_rank": 16,
+    "checkpoint_gib": 0.013,
+    "throughput_per_s": 1.6073,
+    "seconds_per_unit": 0.622,
+    "images_per_s": 6.4292,
+    "checkpoint_gib_as_recorded": 0.038,
+    "checkpoint_gib_note": "recomputed 2026-11-01: the recorded value measured the whole --output_root, including earlier runs"
+  },
+  "after": {
+    "time": "2026-10-30T23:56:11",
+    "sys_cpu_percent": 3.6,
+    "load_avg_1_5_15": [
+      7.82,
+      7.2,
+      7.08
+    ],
+    "sys_ram_used_gib": 211.0,
+    "sys_ram_available_gib": 40.46,
+    "selected_gpu": {
+      "index": 0,
+      "name": "NVIDIA A40",
+      "memory.total": 46068.0,
+      "memory.used": 14.0,
+      "utilization.gpu": 0.0,
+      "temperature.gpu": 51.0,
+      "power.draw": 83.09,
+      "power.limit": 300.0,
+      "driver_version": "550.144.03",
+      "pci.bus_id": "00000000:1B:00.0"
+    },
+    "selected_gpu_other_processes": 0,
+    "selected_gpu_other_processes_mib": 0,
+    "all_gpus": [
+      {
+        "index": 0,
+        "memory.used": 14.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 1,
+        "memory.used": 45214.0,
+        "utilization.gpu": 91.0
+      },
+      {
+        "index": 2,
+        "memory.used": 43932.0,
+        "utilization.gpu": 94.0
+      },
+      {
+        "index": 3,
+        "memory.used": 41754.0,
+        "utilization.gpu": 0.0
+      },
+      {
+        "index": 4,
+        "memory.used": 41754.0,
+        "utilization.gpu": 0.0
+      }
+    ]
+  }
+}
