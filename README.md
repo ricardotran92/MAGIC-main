@@ -112,6 +112,7 @@ To run inference with trained checkpoints:
 ```bash
 python inference.py \
   --model_ckpt_root /path/to/trained/ckpt \
+  --ddim_scheduler_root ./scheduler \
   --categories screw \
   --dataset_type mvtec \
   --text_noise_scale 1.0 \
@@ -125,8 +126,30 @@ python inference.py \
   --gsi_max 7.5 \
   --guidance_scale_outside 7.5 \
   --CAMA \
-  --base_dir /path/to/mvtec_ad \
+  --base_dir /path/to/mvtec_ad
 ```
+
+### ✅ LoRA fine-tuning
+`--use_lora` trains rank-16 LoRA adapters on the UNet attention projections instead of the full UNet
+(about 13 MB per defect instead of a 4.9 GB pipeline). `inference.py` detects
+`pytorch_lora_weights.safetensors` in the checkpoint folder and loads it on top of `--base_model`.
+```bash
+python run_train.py --base_dir /path/to/mvtec_ad --category screw --defect_class scratch_head scratch_neck \
+  --pretrained_model /path/to/sd2_inpainting --output_name magic --use_lora --lora_rank 16 --mixed_precision fp16
+```
+Augmented anomaly masks and object masks for categories other than screw:
+`tools/make_aug_masks.py` and `tools/make_object_masks.py` (U-2-Net via rembg).
+
+### ✅ Performance reports
+Any train/inference/evaluation command can be wrapped by `tools/perf_run.py`, which records the machine,
+CPU/RAM/GPU state before and after, mean/peak usage sampled every 120 s, wall time and throughput into
+`runs/perf/*.json` and `runs/perf/perf_summary.csv`. `tools/perf_report.py` turns them into `runs/perf/REPORT.md`.
+```bash
+python tools/perf_run.py --gpu 0 --tag lora_screw -- python run_train.py ...
+python tools/perf_report.py
+```
+On kindred, `scripts/run_phase4.sh` (train + inference) and `scripts/run_eval.sh` (KID, IC-LPIPS, classification)
+run the whole LoRA vs full fine-tune comparison; `source scripts/kindred_env.sh` first for manual runs.
 
 ---
 
