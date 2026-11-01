@@ -290,6 +290,17 @@ def output_dir_of(script, argv):
     return None
 
 
+def checkpoint_gib(script, argv, output_text):
+    """Size of the checkpoints THIS run wrote, not of the whole --output_root shared by earlier runs."""
+    if script != "run_train.py":
+        return dir_size_gib(output_dir_of(script, argv))
+    root = Path(output_dir_of(script, argv))
+    mode = f"lora_r{arg_value(argv, '--lora_rank', 16, int)}" if has_flag(argv, "--use_lora") else "full"
+    run_dirs = [d for cat, defect in re.findall(r"Running command for category '(\S+)', defect '(\S+)'", output_text)
+                for d in root.glob(f"{arg_value(argv, '--output_name', 'output', str)}_{mode}_noise_*/{cat}/{defect}")]
+    return round(sum(dir_size_gib(d) or 0 for d in run_dirs), 3) if run_dirs else None
+
+
 def workload_before(script, argv):
     if script == "inference.py":
         return {"generated_before": count_files(output_dir_of(script, argv), "image/*.jpg")}
@@ -316,7 +327,7 @@ def workload_after(script, argv, before, output_text, wall):
                     few_shot_examples=examples or None,
                     mode="lora" if has_flag(argv, "--use_lora") else "full",
                     lora_rank=arg_value(argv, "--lora_rank", 16, int) if has_flag(argv, "--use_lora") else None,
-                    checkpoint_gib=dir_size_gib(output_dir_of(script, argv)))
+                    checkpoint_gib=checkpoint_gib(script, argv, output_text))
     elif script == "inference.py":
         after = count_files(output_dir_of(script, argv), "image/*.jpg")
         made = after - before.get("generated_before", 0)

@@ -103,7 +103,7 @@ def quality_section(kid, lpips, cls):
     if cls:
         out += ["", "Defect-type classification (ResNet34 trained on generated screw images, tested on the real "
                 "MVTec test images not used as few-shot):", ""]
-        out += [f"- {tag}: average accuracy {fmt(acc, 2)} %" for tag, acc in cls.items()]
+        out += [f"- {tag}: average accuracy {fmt(None if acc is None else acc * 100, 1)} %" for tag, acc in cls.items()]
     return "\n".join(out)
 
 
